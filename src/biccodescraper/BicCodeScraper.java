@@ -22,16 +22,26 @@ public class BicCodeScraper {
     
     public static void main(String[] args) {
         for (char letter = 'a'; letter <= 'z'; letter++) {
-            try{
-                Document webpage = Jsoup.connect("https://www.bic-code.org/bic-letter-search/?resultsperpage=500&searchterm="+letter).get();
-                Elements reviews = webpage.select("[data-label='Code']");
-                for(Element e: reviews){
-                    System.out.println(e);
+            boolean lastPage = false;
+            int pageNumber = 1;
+            while(!lastPage){
+                try{
+                    Document webpage = Jsoup.connect("https://www.bic-code.org/bic-letter-search/?resultsperpage=500&searchterm="+letter+"&cpage="+pageNumber).get();
+                    Elements bicCodes = webpage.select("[data-label='Code']");
+                    if(bicCodes.size() < 1){
+                        break;
+                    }
+                    for(Element code: bicCodes){
+      
+                        System.out.println(code.text());
+                    }
+                    pageNumber++;
+                }   
+                catch(Exception e){
+                    continue;
                 }
             }
-            catch(Exception e){
-                continue;
-            }
+            
         }
 
        
