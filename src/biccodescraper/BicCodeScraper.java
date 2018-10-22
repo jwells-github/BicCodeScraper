@@ -4,6 +4,12 @@
  * and open the template in the editor.
  */
 package biccodescraper;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.jsoup.Jsoup;
 import org.jsoup.helper.HttpConnection;
 import org.jsoup.nodes.Document;
@@ -21,7 +27,17 @@ public class BicCodeScraper {
      */
     
     public static void main(String[] args) {
+        File file = new File("BicCodes-Output.txt");
+        if (!file.exists()){
+            try {
+                file.createNewFile();
+            } catch (IOException ex) {
+                Logger.getLogger(BicCodeScraper.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+        
         for (char letter = 'a'; letter <= 'z'; letter++) {
+            BufferedWriter bw = null; 
             boolean lastPage = false;
             int pageNumber = 1;
             while(!lastPage){
@@ -31,14 +47,31 @@ public class BicCodeScraper {
                     if(bicCodes.size() < 1){
                         break;
                     }
-                    for(Element code: bicCodes){
-      
-                        System.out.println(code.text());
+                    try{
+                        bw = new BufferedWriter(new FileWriter(file, true)); 
+                        for(Element code: bicCodes){
+                            bw.append(code.text());
+                            bw.newLine();
+                            System.out.println(code.text());
+                        }
                     }
+                    catch (IOException ioe){
+                        System.out.println(ioe);
+                    }
+                    finally{
+                        try {
+                            if (bw != null) {
+                                bw.close();
+                            }
+                        } catch (IOException ex) {
+                            System.out.println(ex);
+                        }
+                    }
+                 
                     pageNumber++;
                 }   
-                catch(Exception e){
-                    continue;
+                catch(IOException e){
+                    System.out.println(e);
                 }
             }
             
